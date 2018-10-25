@@ -31,14 +31,14 @@ def get_connectivity_matrices(filepath):
         print(my_file)
         raise(FileNotFoundError('Is path to file correct??'))
 
-def get_path():
+def get_path(filename):
     '''
     returns path to connectivity_matrices.mat
     '''
 
-    here_dir          = os.path.dirname(os.path.realpath('__file__'))
-    conn_matrices_dir = os.path.join(here_dir, 'data', 'connectivity_matrices.mat')
-    return(conn_matrices_dir)
+    here_dir = os.path.dirname(os.path.realpath('__file__'))
+    file_dir = os.path.join(here_dir, 'data',filename)
+    return(file_dir)
 
 def calculate_laplacian(connec_matrix):
     '''[Calculate Laplacian matrix given the Connectivity Matrix C:
@@ -54,7 +54,7 @@ def calculate_laplacian(connec_matrix):
     return(lap_matrix)
 
 # get array of connectivity matrices for all 14 patients
-conn_matrices_dir = get_path()
+conn_matrices_dir = get_path('connectivity_matrices.mat')
 conn_matrices     = get_connectivity_matrices(conn_matrices_dir)
 
 laplacian = calculate_laplacian(conn_matrices[0])
@@ -63,16 +63,13 @@ spectral = sklearn.cluster.SpectralClustering(n_clusters=2)
 spectral.fit(conn_matrices[0])
 color = spectral.labels_
 
-def plot_glass_brains(color=color):
-    df = pd.read_csv('/Users/pablodamasceno/Documents/1_work/2_code/1_neuropy/coordinates.csv')
+def plot_glass_brains(color = color):
+    coordinates_path = get_path('coordinates.csv')
+
     color = color
 
     coords = [(df['X'][i],df['Y'][i],df['Z'][i]) for i in range(90)]
     connec = np.array([[0]*90]*90)
-
-    # sizes  = all_H[1]/5
-
-    # filtered_sizes = [sizes[i] if sizes[i] > 350 else 50 for i in range(len(sizes))]
 
     plotting.plot_connectome(connec, coords, node_color=color, display_mode='lyrz')
 
