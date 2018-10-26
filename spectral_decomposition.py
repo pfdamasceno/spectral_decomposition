@@ -18,21 +18,31 @@ from nilearn import plotting
 import pandas as pd
 
 def get_path(filename):
-    '''
-    returns path to file: './data/filename'
-    '''
+    """Find filename in ./data/ directory.
+
+    Args:
+        filename (str): file we're looking for in the ./data/ directory.
+
+    Returns:
+        str: path to file "filename" in ./data/ dir.
+
+    """
 
     here_dir = os.path.dirname(os.path.realpath('__file__'))
     file_dir = os.path.join(here_dir, 'data', filename)
     return(file_dir)
 
 def get_connectivity_matrices(filepath):
-    '''
-    read connectivity matrices from .mat file
+    """Read connectivity matrices from .mat file.
 
-    Arguments:
-        filepath {str} -- full path to .mat file containing connectivity matrices
-    '''
+    Args:
+        filepath (str): full path to .mat file containing connectivity matrices.
+
+    Returns:
+        arr: Array of connectivity matrices, one per patient.
+
+    """
+
     from pathlib import Path
     my_file = Path(filepath)
 
@@ -46,12 +56,17 @@ def get_connectivity_matrices(filepath):
         raise(FileNotFoundError('Is path to file correct??'))
 
 def calculate_laplacian(connec_matrix):
-    '''[Calculate Laplacian matrix given the Connectivity Matrix C:
-    L = D - C, where D is the Identity Matrix (diagonal)]
+    """Calculate Laplacian matrix given the Connectivity Matrix C:
+            L = D - C, where D is the Identity Matrix (diagonal).
 
-    Arguments:
-        connectivity_matrix {np.array} -- [weighted matrix of connections between regions in ATLAS]
-    '''
+    Args:
+        connec_matrix (arr): Array of connectivity matrices (90 x 90 x num_patients).
+
+    Returns:
+        arr: Laplacian matrix.
+
+    """
+
     degrees     = [np.sum(connec_matrix[i]) for i in range(len(connec_matrix[0]))]
     diag_matrix = np.diag(degrees)
     lap_matrix  = diag_matrix - connec_matrix
@@ -59,25 +74,34 @@ def calculate_laplacian(connec_matrix):
     return(lap_matrix)
 
 def prune_connectivity_matrices(conn_matrices, p = 0.0001):
-    '''[prune connectivity matrix based on PLoS paper
-    doi:10.1371/journal.pone.0035029.g002]
+    """prune connectivity matrix based on PLoS paper
+                doi:10.1371/journal.pone.0035029.g002.
 
-    Arguments:
-        conn_matrices {np.array} -- [array of weighted connectivity matrices]
-    '''
+    Args:
+        conn_matrices (arr): Array of connectivity matrices (90 x 90 x num_patients).
+        p (double): Prunning parameter below which connections will be ignored.
+
+    Returns:
+        arr: Array of pruned connectivity matrices.
+
+    """
 
     mean_matrix = np.mean(conn_matrices, axis=0)
     shifted_connectivity_matrices  = conn_matrices - mean_matrix
 
 
     def prune_matrix(matrix, z_matrix, p):
-        '''[]
+        """Prune connections whose z-score are below cutoff parameter `p`.
 
-        Arguments:
-            matrix {np.array} -- [matrix to be pruned]
-            z_matrix {np.array} -- [matrix of z_scores for each node]
-            p {double} -- [z-score below which connections will be pruned]
-        '''
+        Args:
+            matrix (arr): Connectivity matrix to be prunned.
+            z_matrix (arr): Matrix of z-scores based on all patients.
+            p (double): Prunning parameter below which connections will be ignored.
+
+        Returns:
+            arr: Prunned matrix.
+
+        """
 
         indices_for_pruning = np.argwhere(np.abs(z_matrix) < p)
         for [i,j] in indices_for_pruning:
@@ -100,13 +124,32 @@ def prune_connectivity_matrices(conn_matrices, p = 0.0001):
     return(pruned_matrices)
 
 def get_submatrix(matrix, index_list):
-    '''
-    '''
+    """Remove `index_list` rows and columns from `matrix`.
+
+    Args:
+        matrix (arr): Matrix to calculate submatrix from.
+        index_list (list): list of indices of rows / columns to remove from Matrix.
+
+    Returns:
+        arr: original `Matrix` with rows and columns removed.
+
+    """
+
     submatrix = np.delete(matrix, index_list,0)
     submatrix = np.delete(submatrix, index_list,1)
     return(submatrix)
 
 def plot_glass_brains(color = color):
+    """Plot a glass brain for a 90 regions ATLAS with nodes colored by `color`.
+
+    Args:
+        color (list): Color indices. e.g. [0,1,1,0] will color nodes [1,2] differently.
+
+    Returns:
+        matplotlib.plot: A plot object.
+
+    """
+
     coordinates_path = get_path('coordinates.csv')
     df = pd.read_csv(coordinates_path)
     color = color
