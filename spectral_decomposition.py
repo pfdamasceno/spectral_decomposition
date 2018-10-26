@@ -2,6 +2,10 @@
 #  Calculate spectral cluster of brain regions based on their connections
 #  connectivity matrices from https://doi.org/10.1371/journal.pone.0014832
 #  prunning code from https://doi.org/10.1371/journal.pone.0035029.g002
+#
+# TODO:
+# 1. get submatrix of nodes based on color
+# 2. iterate over submatrices to calculate decomposition of decompositions
 ###########################################################################
 
 from scipy.io import loadmat
@@ -95,6 +99,13 @@ def prune_connectivity_matrices(conn_matrices, p = 0.0001):
 
     return(pruned_matrices)
 
+def get_submatrix(matrix, index_list):
+    '''
+    '''
+    submatrix = np.delete(matrix, index_list,0)
+    submatrix = np.delete(submatrix, index_list,1)
+    return(submatrix)
+
 def plot_glass_brains(color = color):
     coordinates_path = get_path('coordinates.csv')
     df = pd.read_csv(coordinates_path)
@@ -105,19 +116,19 @@ def plot_glass_brains(color = color):
 
     plotting.plot_connectome(connec, coords, node_color=color, display_mode='lyrz')
 
-if __name__ == 'main':
-    conn_matrices_dir = get_path('connectivity_matrices.mat')
-    conn_matrices     = get_connectivity_matrices(conn_matrices_dir)
+conn_matrices_dir = get_path('connectivity_matrices.mat')
+conn_matrices     = get_connectivity_matrices(conn_matrices_dir)
 
-    pruned = prune_connectivity_matrices(conn_matrices)
-    shifted_conn_matrices = pruned + 0.0001
-    inv_conn_matrices = 1/ shifted_conn_matrices
+pruned = prune_connectivity_matrices(conn_matrices)
+shifted_conn_matrices = pruned + 0.0001
+inv_conn_matrices = 1/ shifted_conn_matrices
 
-    kernelized = np.exp(- inv_conn_matrices ** 2 / (2. * 0.005 ** 2))
+kernelized = np.exp(- inv_conn_matrices ** 2 / (2. * 0.005 ** 2))
 
-    spectral = sklearn.cluster.SpectralClustering(n_clusters=2, eigen_solver='arpack')
-    spectral.fit(kernelized[0])
+spectral = sklearn.cluster.SpectralClustering(n_clusters=2, eigen_solver='arpack')
+spectral.fit(kernelized[0])
 
-    color = spectral.labels_
+color_step1 = spectral.labels_
+color_step1
 
-    plot_glass_brains(color)
+plot_glass_brains(color_step1)
