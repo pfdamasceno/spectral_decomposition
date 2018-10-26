@@ -55,24 +55,6 @@ def get_connectivity_matrices(filepath):
         print(my_file)
         raise(FileNotFoundError('Is path to file correct??'))
 
-def calculate_laplacian(connec_matrix):
-    """Calculate Laplacian matrix given the Connectivity Matrix C:
-            L = D - C, where D is the Identity Matrix (diagonal).
-
-    Args:
-        connec_matrix (arr): Array of connectivity matrices (90 x 90 x num_patients).
-
-    Returns:
-        arr: Laplacian matrix.
-
-    """
-
-    degrees     = [np.sum(connec_matrix[i]) for i in range(len(connec_matrix[0]))]
-    diag_matrix = np.diag(degrees)
-    lap_matrix  = diag_matrix - connec_matrix
-
-    return(lap_matrix)
-
 def prune_connectivity_matrices(conn_matrices, p = 0.0001):
     """prune connectivity matrix based on PLoS paper
                 doi:10.1371/journal.pone.0035029.g002.
@@ -123,6 +105,24 @@ def prune_connectivity_matrices(conn_matrices, p = 0.0001):
 
     return(pruned_matrices)
 
+def calculate_laplacian(connec_matrix):
+    """Calculate Laplacian matrix given the Connectivity Matrix C:
+            L = D - C, where D is the Identity Matrix (diagonal).
+
+    Args:
+        connec_matrix (arr): Array of connectivity matrices (90 x 90 x num_patients).
+
+    Returns:
+        arr: Laplacian matrix.
+
+    """
+
+    degrees     = [np.sum(connec_matrix[i]) for i in range(len(connec_matrix[0]))]
+    diag_matrix = np.diag(degrees)
+    lap_matrix  = diag_matrix - connec_matrix
+
+    return(lap_matrix)
+
 def get_submatrix(matrix, index_list):
     """Remove `index_list` rows and columns from `matrix`.
 
@@ -139,7 +139,7 @@ def get_submatrix(matrix, index_list):
     submatrix = np.delete(submatrix, index_list,1)
     return(submatrix)
 
-def plot_glass_brains(color = color):
+def plot_glass_brains(color):
     """Plot a glass brain for a 90 regions ATLAS with nodes colored by `color`.
 
     Args:
