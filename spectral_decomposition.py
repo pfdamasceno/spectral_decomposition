@@ -113,7 +113,7 @@ if __name__ == 'main':
     shifted_conn_matrices = pruned + 0.0001
     inv_conn_matrices = 1/ shifted_conn_matrices
 
-    kernelized = np.exp(- inv_conn_matrices ** 2 / (2. * 0.003 ** 2))
+    kernelized = np.exp(- inv_conn_matrices ** 2 / (2. * 0.005 ** 2))
 
     spectral = sklearn.cluster.SpectralClustering(n_clusters=2, eigen_solver='arpack')
     spectral.fit(kernelized[0])
