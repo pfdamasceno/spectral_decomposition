@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pfdamasceno/spectral_decomposition/master?filepath=%2F2.Spectral_clustering_DK.ipynb)
+
 # Spectral Clustering of Brain Regions
 
 Brain regions, classified: 
